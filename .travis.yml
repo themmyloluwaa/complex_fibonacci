@@ -1,0 +1,23 @@
+sudo: required
+services:
+  - docker
+before_install:
+  - docker build -t temiloluwa/client-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run temiloluwa/client-test npm test -- --coverage
+
+after_success:
+  - docker build -t temiloluwa/complex-fibonacci-client ./client
+  - docker build -t temiloluwa/complex-fibonacci-server ./server
+  - docker build -t temiloluwa/complex-fibonacci-worker ./worker
+  - docker build -t temiloluwa/complex-fibonacci-nginx  ./nginx
+# login to docker hub
+
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  #push project to docker hub
+  - docker push temiloluwa/complex-fibonacci-client
+  - docker push temiloluwa/complex-fibonacci-server
+  - docker push temiloluwa/complex-fibonacci-worker
+  - docker push temiloluwa/complex-fibonacci-nginx
